@@ -6,7 +6,7 @@ function match(scnfn, imsdir)
 [scnimg, scndes, scnloc] = sift(scnfn);
 scndest = scndes';
 
-dist_ratio = 0.7;   
+dist_ratio = 0.6;   
 
 imshow(scnimg);
 hold on;
@@ -20,7 +20,7 @@ for imf = imslist'
     end
 
     % Get full path
-    if imf.isdir
+    if exist(imsdir, 'file') == 2
         impath = imsdir;
     else
         impath = fullfile(imsdir, imf.name);
@@ -44,11 +44,42 @@ for imf = imslist'
         end
     end
     
-    points = zeros(0,2);
-    for i = 1:size(objdes,1)
+    objpts = zeros(0,2);
+    scnpts = zeros(0,2);
+    for i = 1:size(match)
         if (match(i) > 0)
-            points(end+1,:) = scnloc(match(i), [2 1]);
-            plot(scnloc(match(i), 2), scnloc(match(i), 1), 'r.', 'MarkerSize', 5);
+            objpts(end+1,:) = objloc(i, 1:2);
+            scnpts(end+1,:) = scnloc(match(i), 1:2);
         end
     end
+    
+    maxcon = -1;
+    for i = 1:10
+        try
+            randi = randperm(size(objpts,1), 3);
+            trans = fitgeotrans(objpts(randi,:), scnpts(randi,:), 'affine');
+            moved = transformPointsForward(trans, objpts);
+            pterr = sqrt(sum((moved - scnpts).^2,2));
+            cons = pterr < mean(pterr);
+            if sum(cons) > maxcon
+                maxcon = sum(cons);
+                keep = cons;
+                besttf = trans;
+            end
+        catch
+            continue
+        end
+    end
+    
+    if maxcon < 6
+        continue
+    end
+    
+    objpts = objpts(keep,:);
+    scnpts = scnpts(keep,:);
+    
+    hullpts = convhull(scnpts);
+
+    plot(scnpts(:,2), scnpts(:,1), 'r.', 'MarkerSize', 5);
+    line(scnpts(hullpts([end 1:end]),2), scnpts(hullpts([end 1:end]),1));
 end
