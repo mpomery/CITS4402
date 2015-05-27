@@ -22,7 +22,7 @@ function varargout = object_regocnition(varargin)
 
     % Edit the above text to modify the response to help object_regocnition
 
-    % Last Modified by GUIDE v2.5 27-May-2015 19:07:48
+    % Last Modified by GUIDE v2.5 27-May-2015 20:54:32
 
     % Begin initialization code - DO NOT EDIT
     gui_Singleton = 1;
@@ -103,4 +103,105 @@ function figure1_ResizeFcn(hObject, eventdata, handles)
     %outputpos = [axisx axesy axeswidth axesheight];
     
     set(handles.outputaxis, 'Position', ret);
+end
+
+
+% --- Executes on button press in buttonInputImagesLocation.
+function buttonInputImagesLocation_Callback(hObject, eventdata, handles)
+    % hObject    handle to buttonInputImagesLocation (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+end
+
+% --- Executes on button press in buttonInputSceneLocation.
+function buttonInputSceneLocation_Callback(hObject, eventdata, handles)
+    % hObject    handle to buttonInputSceneLocation (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+end
+
+% --- Executes on button press in buttonSaveImage.
+function buttonSaveImage_Callback(hObject, eventdata, handles)
+    % hObject    handle to buttonSaveImage (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+end
+
+% --- Executes on button press in buttonNextScene.
+function buttonNextScene_Callback(hObject, eventdata, handles)
+    % hObject    handle to buttonNextScene (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+end
+
+% --- Executes on button press in buttonPreviousScene.
+function buttonPreviousScene_Callback(hObject, eventdata, handles)
+    % hObject    handle to buttonPreviousScene (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+end
+
+% --- Executes on button press in checkboxAutoAdvance.
+function checkboxAutoAdvance_Callback(hObject, eventdata, handles)
+    % hObject    handle to checkboxAutoAdvance (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+
+    % Hint: get(hObject,'Value') returns toggle state of checkboxAutoAdvance
+end
+
+
+function editInputImagesLocation_Callback(hObject, eventdata, handles)
+    % hObject    handle to editInputImagesLocation (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+
+    % Hints: get(hObject,'String') returns contents of editInputImagesLocation as text
+    %        str2double(get(hObject,'String')) returns contents of editInputImagesLocation as a double
+end
+
+% --- Executes during object creation, after setting all properties.
+function editInputImagesLocation_CreateFcn(hObject, eventdata, handles)
+    % hObject    handle to editInputImagesLocation (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    empty - handles not created until after all CreateFcns called
+
+    % Hint: edit controls usually have a white background on Windows.
+    %       See ISPC and COMPUTER.
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+end
+
+
+function editInputSceneLocation_Callback(hObject, eventdata, handles)
+    % hObject    handle to editInputSceneLocation (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+
+    % Hints: get(hObject,'String') returns contents of editInputSceneLocation as text
+    %        str2double(get(hObject,'String')) returns contents of editInputSceneLocation as a double
+end
+
+% --- Executes during object creation, after setting all properties.
+function editInputSceneLocation_CreateFcn(hObject, eventdata, handles)
+    % hObject    handle to editInputSceneLocation (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    empty - handles not created until after all CreateFcns called
+
+    % Hint: edit controls usually have a white background on Windows.
+    %       See ISPC and COMPUTER.
+    if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+        set(hObject,'BackgroundColor','white');
+    end
+end
+
+
+% --- Executes on button press in checkboxOutlines.
+function checkboxOutlines_Callback(hObject, eventdata, handles)
+    % hObject    handle to checkboxOutlines (see GCBO)
+    % eventdata  reserved - to be defined in a future version of MATLAB
+    % handles    structure with handles and user data (see GUIDATA)
+
+    % Hint: get(hObject,'Value') returns toggle state of checkboxOutlines
 end
