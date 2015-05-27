@@ -22,7 +22,7 @@ function varargout = object_regocnition(varargin)
 
     % Edit the above text to modify the response to help object_regocnition
 
-    % Last Modified by GUIDE v2.5 27-May-2015 20:54:32
+    % Last Modified by GUIDE v2.5 27-May-2015 20:56:55
 
     % Begin initialization code - DO NOT EDIT
     gui_Singleton = 1;
@@ -59,7 +59,16 @@ function object_regocnition_OpeningFcn(hObject, eventdata, handles, varargin)
     guidata(hObject, handles);
 
     % UIWAIT makes object_regocnition wait for user response (see UIRESUME)
-    % uiwait(handles.figure1);
+    % uiwait(handles.object_recognition_GUI);
+    
+    % Load the default image input and scene input locations
+    current_dir = pwd();
+    loadInputImages(strcat(current_dir, '\images'));
+    loadInputScenes(strcat(current_dir, '\scenes'));
+    
+    % Show the first scene image
+    
+    % Tick the autoadvance box
 end
 
 % --- Outputs from this function are returned to the command line.
@@ -74,9 +83,9 @@ function varargout = object_regocnition_OutputFcn(hObject, eventdata, handles)
 end
 
 
-% --- Executes when figure1 is resized.
-function figure1_ResizeFcn(hObject, eventdata, handles)
-    % hObject    handle to figure1 (see GCBO)
+% --- Executes when object_recognition_GUI is resized.
+function object_recognition_GUI_ResizeFcn(hObject, eventdata, handles)
+    % hObject    handle to object_recognition_GUI (see GCBO)
     % eventdata  reserved - to be defined in a future version of MATLAB
     % handles    structure with handles and user data (see GUIDATA)
     
@@ -204,4 +213,20 @@ function checkboxOutlines_Callback(hObject, eventdata, handles)
     % handles    structure with handles and user data (see GUIDATA)
 
     % Hint: get(hObject,'Value') returns toggle state of checkboxOutlines
+end
+
+% Loads InputImages
+function loadInputImages(location)
+    % location   Location of input images to load
+    if exist(location, 'dir')
+        genkps(location)
+    else
+        % TODD: Learn how to throw errors
+    end
+end
+
+% Loads InputScenese
+function loadInputScenes(location)
+    % location   Location of input scenes to load
+    
 end
