@@ -1,85 +1,83 @@
 % Attempts to find images in imsdir that match the given scene image
 
-function match(scnfn, imsdir)
-    % Find SIFT keypoints for scene image
-    [scnimg, scndes, scnloc] = sift(scnfn);
-    scndest = scndes';
+function [sceneimage, scenepointset, objectpointset, objectnames] = match(scnfn, dbfile)
 
-    dist_ratio = 0.6;   
+scnptset = {};
+objptset = {};
+objnames = {};
 
-    imshow(scnimg);
-    hold on;
+% Find SIFT keypoints for scene image
+[scnimg, scndes, scnloc] = sift(scnfn);
+[dbdesc, dblocs, dbimid, dbname] = loaddb(dbfile);
 
-    % Loop over images in imsdir
-    imslist = dir(imsdir);
-    for imf = imslist'
-        % Ignore directories and hidden folders
-        if imf.isdir || imf.name(1) == '.'
-            continue
-        end
+dist_ratio = 0.9;
+ransac_iters = 200;
 
-        % Get full path
-        if exist(imsdir, 'file') == 2
-            impath = imsdir;
-        else
-            impath = fullfile(imsdir, imf.name);
-        end
-        
-        % Only consider images
-        try
-            imfinfo(impath);
-        catch
-            continue;
-        end
-        
-        % Compute SIFT keypoints
-        [objimg, objdes, objloc] = sift(impath);
-        
-        [dists, inds] = pdist2(scndes, objdes, 'euclidean', 'Smallest', 2);
-        match = zeros(size(objdes,1),1);
-        for i = 1:size(objdes,1)
-            if (dists(1,i) < dist_ratio * dists(2,i))
-                match(i) = inds(1,i);
-            end
-        end
-        
-        objpts = zeros(0,2);
-        scnpts = zeros(0,2);
-        for i = 1:size(match)
-            if (match(i) > 0)
-                objpts(end+1,:) = objloc(i, 1:2);
-                scnpts(end+1,:) = scnloc(match(i), 1:2);
-            end
-        end
-        
-        maxcon = -1;
-        for i = 1:10
-            try
-                randi = randperm(size(objpts,1), 3);
-                trans = fitgeotrans(objpts(randi,:), scnpts(randi,:), 'affine');
-                moved = transformPointsForward(trans, objpts);
-                pterr = sqrt(sum((moved - scnpts).^2,2));
-                cons = pterr < mean(pterr);
-                if sum(cons) > maxcon
-                    maxcon = sum(cons);
-                    keep = cons;
-                    besttf = trans;
-                end
-            catch
-                continue
-            end
-        end
-        
-        if maxcon < 6
-            continue
-        end
-        
-        objpts = objpts(keep,:);
-        scnpts = scnpts(keep,:);
-        
-        hullpts = convhull(scnpts);
+% Find best matching between all features in the scene and in the database
+[dists, inds] = pdist2(dbdesc, scndes, 'euclidean', 'Smallest', 2);
+keep = dists(1,:) < dist_ratio * dists(2,:);
+match = horzcat((1:size(inds,2))', inds(1,:)');
+match = match(keep,:);
+match = sortrows(match, 2);
 
-        plot(scnpts(:,2), scnpts(:,1), 'r.', 'MarkerSize', 5);
-        line(scnpts(hullpts([end 1:end]),2), scnpts(hullpts([end 1:end]),1));
+for id = 1:numel(unique(dbimid))
+    selector = (dbimid(match(:,2)) == id);
+    if sum(selector) == 0
+        continue
     end
+    scnpts = scnloc(match(selector,1),1:2);
+    objpts = dblocs(match(selector,2),1:2);
+    
+    if numel(objpts) < 3
+        continue
+    end
+    
+    % Do RANSAC to try find a good transform
+    wrng = warning('off', 'all');
+    minerr = realmax('double');
+    for j = 1:ransac_iters
+        try
+            randi = randperm(size(objpts,1), 3);
+            trans = fitgeotrans(objpts(randi,:), scnpts(randi,:), 'affine');
+            moved = transformPointsForward(trans, objpts);
+            pterr = sqrt(sum((moved - scnpts).^2,2));
+            if sum(pterr) < minerr
+                minerr = sum(pterr);
+                keep = pterr < mean(pterr);
+                besttf = trans;
+            end
+        catch
+            continue
+        end
+    end
+    warning(wrng);
+    
+    if minerr == realmax('double')
+        continue
+    end
+    
+    if (sum(keep) < 5) || (100*sum(keep) < sum(dbimid == id))
+        continue
+    end
+    
+    objpts = objpts(keep,:);
+    scnpts = scnpts(keep,:);
+    
+    moved = transformPointsForward(besttf, objpts);
+    pterr = sqrt(sum((moved - scnpts).^2,2));
+%     disp([dbname{id} 9 num2str(mean(pterr)) 9 num2str(std(pterr))])
+%   If the best fit we have found isn't good enough, discard this object
+    if mean(pterr) > (numel(scnimg) / 200^2)
+        continue
+    end
+    disp(dbname{id})
+    
+    scnptset{end+1} = scnpts;
+    objptset{end+1} = objpts;
+    objnames{end+1} = dbname{id};
 end
+
+sceneimage = scnimg;
+scenepointset = scnptset;
+objectpointset = objptset;
+objectnames = objnames;
